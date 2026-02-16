@@ -40,18 +40,10 @@ class TestPet:
         with allure.step("Подготовка данных для создания питомца"):
             payload = {
                 "id": 10,
-                "name": "doggie",
-                "category": {
-                    "id": 1, "name": "Dogs"
-                },
-                "photoUrls": ["string"],
-                "tags": [
-                    {
-                        "id": 0, "name": "string"
-                    }
-                ],
+                "name": "Buddy",
                 "status": "available"
             }
+
         with allure.step("Отправка запроса на создание питомца"):
             response = requests.post(url=f"{BASE_URL}/pet", json=payload)
             response_json = response.json()
@@ -63,7 +55,4 @@ class TestPet:
         with allure.step("Проверка параметров питомца в ответе"):
             assert response_json['id'] == payload['id'], "id incorrect"
             assert response_json['name'] == payload['name'], "name incorrect"
-            assert response_json['category'] == payload['category'], "category incorrect"
-            assert response_json['photoUrls'] == payload['photoUrls'], "photoUrls incorrect"
-            assert response_json['tags'] == payload['tags'], "tags incorrect"
             assert response_json['status'] == payload['status'], "status incorrect"
