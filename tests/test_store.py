@@ -31,16 +31,34 @@ class TestStore:
 
     @allure.title("Получение информации о заказе по ID (GET /store/order/{orderId})")
     def test_get_store_order(self, create_store_order):
-        pass
+        order_id = create_store_order['id']
+        with allure.step(f"Отправка GET-запроса на получение информации о заказе {order_id}"):
+            response = requests.get(url=f"{BASE_URL}/store/order/{order_id}")
+            response_json = response.json()
+            assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
+            assert response_json['id'] == 1, "id incorrect"
 
     @allure.title("Удаление заказа по ID (DELETE /store/order/{orderId})")
     def test_delete_store_order(self, create_store_order):
-        pass
+        order_id = create_store_order['id']
+        with allure.step(f"Отправка DELETE-запроса на удаление информации о заказе {order_id}"):
+            response = requests.delete(url=f"{BASE_URL}/store/order/{order_id}")
+            assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
+
+        with allure.step(f"Отправка GET-запроса на получение информации о заказе {order_id}"):
+            response = requests.get(url=f"{BASE_URL}/store/order/1")
+            assert response.status_code == 404, "Код ответа не совпал с ожидаемым"
 
     @allure.title("Попытка получить информацию о несуществующем заказе (GET /store/order/{orderId})")
-    def test_get_store_order(self):
-        pass
+    def test_get_nonexistent_store_order(self):
+        nonexistent_store_order = 9999
+        with allure.step(f"Отправка GET-запроса на получение информации о несуществующем заказе {nonexistent_store_order}"):
+            response = requests.get(url=f"{BASE_URL}/store/order/{nonexistent_store_order}")
+            assert response.status_code == 404, "Код ответа не совпал с ожидаемым"
 
     @allure.title("Получение инвентаря магазина (GET /store/inventory)")
     def test_get_store_inventory(self):
-        pass
+        with allure.step("Отправка GET-запроса на получение инвентаря магазина"):
+            response = requests.get(url=f"{BASE_URL}/store/inventory")
+            assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
+            assert isinstance(response.json(), dict)
