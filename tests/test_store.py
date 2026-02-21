@@ -2,7 +2,8 @@ import allure
 import pytest
 import requests
 import jsonschema
-from .schemas.pet_schema import PET_SCHEMA
+from .schemas.inventory_schema import INVENTORY_SCHEMA
+from .schemas.order_schema import ORDER_SCHEMA
 
 BASE_URL = "http://5.181.109.28:9090/api/v3"
 
@@ -23,11 +24,7 @@ class TestStore:
             response = requests.post(url=f"{BASE_URL}/store/order", json=payload)
             response_json = response.json()
             assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
-            assert response_json['id'] == payload['id'], "id incorrect"
-            assert response_json['petId'] == payload['petId'], "petId incorrect"
-            assert response_json['quantity'] == payload['quantity'], "quantity incorrect"
-            assert response_json['status'] == payload['status'], "status incorrect"
-            assert response_json['complete'] == payload['complete'], "complete incorrect"
+            jsonschema.validate(response_json, ORDER_SCHEMA)
 
     @allure.title("Получение информации о заказе по ID (GET /store/order/{orderId})")
     def test_get_store_order(self, create_store_order):
@@ -36,7 +33,7 @@ class TestStore:
             response = requests.get(url=f"{BASE_URL}/store/order/{order_id}")
             response_json = response.json()
             assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
-            assert response_json['id'] == 1, "id incorrect"
+            assert response_json['id'] == order_id, "id incorrect"
 
     @allure.title("Удаление заказа по ID (DELETE /store/order/{orderId})")
     def test_delete_store_order(self, create_store_order):
@@ -46,7 +43,7 @@ class TestStore:
             assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
 
         with allure.step(f"Отправка GET-запроса на получение информации о заказе {order_id}"):
-            response = requests.get(url=f"{BASE_URL}/store/order/1")
+            response = requests.get(url=f"{BASE_URL}/store/order/{order_id}")
             assert response.status_code == 404, "Код ответа не совпал с ожидаемым"
 
     @allure.title("Попытка получить информацию о несуществующем заказе (GET /store/order/{orderId})")
@@ -61,4 +58,5 @@ class TestStore:
         with allure.step("Отправка GET-запроса на получение инвентаря магазина"):
             response = requests.get(url=f"{BASE_URL}/store/inventory")
             assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
-            assert isinstance(response.json(), dict)
+            response_json = response.json()
+            jsonschema.validate(response_json, INVENTORY_SCHEMA)
