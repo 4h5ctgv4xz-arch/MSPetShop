@@ -24,6 +24,8 @@ class TestStore:
             response = requests.post(url=f"{BASE_URL}/store/order", json=payload)
             response_json = response.json()
             assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
+
+        with allure.step("Валидация JSON Schema"):
             jsonschema.validate(response_json, ORDER_SCHEMA)
 
     @allure.title("Получение информации о заказе по ID (GET /store/order/{orderId})")
@@ -59,4 +61,6 @@ class TestStore:
             response = requests.get(url=f"{BASE_URL}/store/inventory")
             assert response.status_code == 200, "Код ответа не совпал с ожидаемым"
             response_json = response.json()
+
+        with allure.step("Валидация JSON Schema"):
             jsonschema.validate(response_json, INVENTORY_SCHEMA)
